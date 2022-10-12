@@ -23,6 +23,31 @@ interface Props {
 	}>;
 }
 
+const contextmenu = {
+	"A": {
+		"Open link in new tab": (link: string) => {
+			window.open(link, "_blank");
+		},
+		"Copy link address": (link: string) => {
+			navigator.clipboard.writeText(link);
+		},
+	},
+	"IMG": {
+		"Open image in new tab": (link: string) => {
+			window.open(link, "_blank");
+		},
+		"Copy image address": (link: string) => {
+			navigator.clipboard.writeText(link);
+		},
+		"Copy Image": async (link: string) => {
+			const resp = await fetch(link);
+			const blog = await resp.blob();
+			
+			navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+		}
+	}
+}
+
 export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: Props) => {
 
 	const cr = React.useRef<HTMLDivElement>(null);
@@ -152,7 +177,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 				const tag = (trgt as HTMLElement).tagName;
 
 				setRightClickedOn({
-					tag, selected: selection !== null,
+					tag, selected: selection?.toString().trim() !== "",
 					selection: selection?.toString() ?? ""
 				})
 			}
@@ -237,7 +262,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 									</button>
 									<button
 										onClick={() => {
-											navigator.clipboard.writeText(rightClickedOn?.selection ?? "");
+											navigator.clipboard.writeText(window.location.href + "#:~:text=" + rightClickedOn?.selection ?? "");
 										}}
 									>
 										<svg width="1em" height="1em" viewBox="0 0 24 24">
@@ -245,6 +270,8 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 										</svg>
 									</button>
 								</div>
+
+
 							)}
 						</motion.div>
 					)}
