@@ -7,10 +7,13 @@ import './styles/index.css'
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
   <React.StrictMode>
     <DynamicCursorProvider menuOptions={[
-      { icon: <>+</>, onClick: () => console.log("clicked") },
-      { icon: <>+</>, onClick: () => console.log("clicked1") },
-      { icon: <>+</>, onClick: () => console.log("clicked3") },
-      { icon: <>+</>, onClick: () => console.log("clicked4") },
+      { icon: <>+</>, onClick: () => window.open("https://google.com") },
+      { icon: <>-</>, onClick: () => window.open("https://youtube.com") },
+      { icon: <>/</>, onClick: () => window.open("https://github.com") },
+      { icon: <>:</>, onClick: () => window.open("https://facebook.com") },
+      { icon: <>&</>, onClick: () => window.open("https://twitter.com") },
+      { icon: <>#</>, onClick: () => alert("#") },
+      { icon: <>%</>, onClick: () => alert("#") },
     ]}>
       <App />
     </DynamicCursorProvider>

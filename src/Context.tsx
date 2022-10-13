@@ -176,7 +176,8 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 		function onMouseDown() {
 
 			if (_menuRef.current === true && _cs.current !== null) {
-				menuOpts[_cs.current]?.onClick();
+				console.log(_cs.current, menuOpts[_cs.current - 1])
+				menuOpts[_cs.current - 1]?.onClick();
 				menuOff.current = true;
 				setMenu(false);
 			}
@@ -204,17 +205,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 			dynamicHover: setHovering
 		}}>
 			{(menu) && (
-				<div
-					style={{
-						height: "100vh",
-						width: "100vw",
-						position: "fixed",
-						top: 0,
-						left: 0,
-						zIndex: 100,
-						background: "rgba(0, 0, 0, 0.5)"
-					}}
-				/>
+				<div className="dynamic-menu-overlay" />
 			)}
 
 			{(!hovering || menu) && (
@@ -225,15 +216,8 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 					style={{
 						width: !(hoveringOn || menu) ? "20px" : "50px",
 						height: !(hoveringOn || menu) ? "20px" : "50px",
-						borderRadius: "50%",
-						display: "flex", justifyContent: "center", alignItems: "center",
-						position: "fixed",
-						zIndex: "10000",
-						background: "white",
-						pointerEvents: "none",
-						top: 0, left: 0,
-						transition: "all 0.2s ease-in-out",
 					}}
+					className="dynamic-cursor"
 				>
 					{menu && (
 						<>
@@ -242,7 +226,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 								animate={{ scale: 1, rotate: 0 }}
 								style={{ position: "absolute", userSelect: "none", width: "100%", height: "100%" }}
 							>
-								<div ref={menuOptions} className='circle'>
+								<div ref={menuOptions} className='dynamic-cursor-menu'>
 
 									{menuOpts.map((opt, index) => (
 										<div
@@ -253,6 +237,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 												rotate: `${360 * ((index + 1) / menuOpts.length)}deg`,
 											}}
 											key={index + 1}
+											className="dynamic-cursor-menu-ring"
 										>
 											<div style={{
 												display: "flex",
