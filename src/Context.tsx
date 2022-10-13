@@ -23,7 +23,11 @@ interface Props {
 	}>;
 }
 
-const contextmenu = {
+const contextmenu: {
+	[key: string]: {
+		[key: string]: (prop: string) => void;
+	}
+} = {
 	"A": {
 		"Open link in new tab": (link: string) => {
 			window.open(link, "_blank");
@@ -41,11 +45,30 @@ const contextmenu = {
 		},
 		"Copy Image": async (link: string) => {
 			const resp = await fetch(link);
-			const blog = await resp.blob();
-			
+			const blob = await resp.blob();
+
 			navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
+		},
+		"Save Image": async (link: string) => {
+			const a = document.createElement("a");
+			const resp = await fetch(link);
+			const blob = await resp.blob();
+
+			document.body.appendChild(a); // for Firefox
+
+			const reader = new FileReader();
+			let base64: string | ArrayBuffer | null = "";
+			reader.readAsDataURL(blob);
+			reader.onloadend = function () {
+				base64 = reader.result;
+			}
+
+			a.setAttribute("href", base64);
+			a.setAttribute("download", "image.png");
+			a.click();
 		}
-	}
+	},
+
 }
 
 export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: Props) => {
@@ -55,7 +78,6 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 
 	const [hovering, setHovering] = React.useState(false);
 	const [menu, setMenu] = React.useState(false);
-	const [rightMenu, setRightMenu] = React.useState(false);
 	const [hoveringOn, setHoveringOn] = React.useState<null | "link" | "video" | "button">(null);
 	const [currentSelected, setCurrentSelected] = React.useState<number | null>(null);
 
@@ -63,9 +85,6 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 	const _cs = React.useRef<number | null>(null);
 	const _menuRef = React.useRef<boolean>();
 	const menuOff = React.useRef<boolean>(false);
-	const rightMenuOff = React.useRef<boolean>(false);
-	const justTurnedRightMenuOff = React.useRef<boolean>(false);
-	const [rightClickedOn, setRightClickedOn] = React.useState<null | { tag: string; selected: boolean, selection: string }>(null);
 
 	React.useEffect(() => {
 
@@ -76,10 +95,10 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 		if (!menu) {
 			setCurrentSelected(null);
 			document.body.style.overflow = "auto";
-			document.body.style.userSelect = "all";
+			document.body.style.userSelect = "text";
 		}
 
-		if (!menu && cr.current && mousePos?.current && rightMenuOff?.current) {
+		if (!menu && cr.current && mousePos?.current) {
 			cr.current.animate(
 				[{
 					transform: `translate(${mousePos.current.x - cr.current.clientWidth / 2}px, ${mousePos.current.y - cr.current.clientWidth / 2}px)`
@@ -91,9 +110,9 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 				}
 			)
 		}
-	}, [menu, rightMenu])
+	}, [menu])
 
-	React.useEffect(() => { _menuRef.current = menu; _cs.current = currentSelected; rightMenuOff.current = rightMenu }, [menu, currentSelected, rightMenu]);
+	React.useEffect(() => { _menuRef.current = menu; _cs.current = currentSelected; }, [menu, currentSelected]);
 
 	React.useEffect(() => {
 
@@ -122,7 +141,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 				}
 			}
 
-			if (cr.current && !hovering && _menuRef.current === false && rightMenuOff.current === false) {
+			if (cr.current && !hovering && _menuRef.current === false) {
 
 				cr.current.animate(
 					[{
@@ -163,36 +182,12 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 			}
 		}
 
-		function contextMenu(e: MouseEvent) {
-			e.preventDefault();
-
-			if (justTurnedRightMenuOff.current) {
-				justTurnedRightMenuOff.current = false;
-				return;
-			}
-
-			const selection = document.getSelection();
-			const trgt = e.target;
-			if (trgt) {
-				const tag = (trgt as HTMLElement).tagName;
-
-				setRightClickedOn({
-					tag, selected: selection?.toString().trim() !== "",
-					selection: selection?.toString() ?? ""
-				})
-			}
-
-			setRightMenu(true);
-		}
-
-		document.addEventListener("contextmenu", contextMenu)
 		document.addEventListener("mousedown", onMouseDown)
 		document.addEventListener("mousemove", onMouseMove)
 		document.addEventListener("keydown", keyPress)
 		document.addEventListener("keyup", keyRelease)
 
 		return () => {
-			document.removeEventListener("contextmenu", contextMenu)
 			document.removeEventListener("mousedown", onMouseDown)
 			document.removeEventListener("mousemove", onMouseMove)
 			document.removeEventListener("keydown", keyPress)
@@ -208,7 +203,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 			dynamicHovering: hovering,
 			dynamicHover: setHovering
 		}}>
-			{(menu || rightMenu) && (
+			{(menu) && (
 				<div
 					style={{
 						height: "100vh",
@@ -217,9 +212,8 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 						top: 0,
 						left: 0,
 						zIndex: 100,
-						background: rightMenu ? "transparent" : "rgba(0, 0, 0, 0.5)"
+						background: "rgba(0, 0, 0, 0.5)"
 					}}
-					onMouseDown={(e: any) => { setRightMenu(false); justTurnedRightMenuOff.current = e.button === 2 }}
 				/>
 			)}
 
@@ -229,58 +223,24 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 					ref={cr}
 					layout layoutId='cursor'
 					style={{
-						width: rightMenu ? "max-content" : (!(hoveringOn || menu) ? "20px" : "50px"),
-						height: rightMenu ? "max-content" : (!(hoveringOn || menu) ? "20px" : "50px"),
+						width: !(hoveringOn || menu) ? "20px" : "50px",
+						height: !(hoveringOn || menu) ? "20px" : "50px",
 						borderRadius: "50%",
 						display: "flex", justifyContent: "center", alignItems: "center",
 						position: "fixed",
-						zIndex: "1000000",
-						background: !rightMenu ? "white": "",
-						pointerEvents: rightMenu ? "all" : "none",
+						zIndex: "10000",
+						background: "white",
+						pointerEvents: "none",
+						top: 0, left: 0,
 						transition: "all 0.2s ease-in-out",
 					}}
 				>
-					{rightMenu && (
-						<motion.div
-							initial={{ width: "20px", height: "20px", borderRadius: "50%" }}
-							animate={{ width: "max-content", height: "max-content", borderRadius: "5px" }}
-							transition={{
-								duration: 0.1
-							}}
-							className="dynamic-context-menu"
-						>
-							{rightClickedOn?.selected && (
-								<div className="dynamic-context-menu-top-toolbar">
-									<button
-										onClick={() => {
-											navigator.clipboard.writeText(rightClickedOn?.selection ?? "");
-										}}
-									>
-										<svg width="1em" height="1em" viewBox="0 0 24 24">
-											<path fill="currentColor" d="M19 19H8q-.825 0-1.412-.587Q6 17.825 6 17V3q0-.825.588-1.413Q7.175 1 8 1h6.175q.4 0 .763.15q.362.15.637.425l4.85 4.85q.275.275.425.637q.15.363.15.763V17q0 .825-.587 1.413Q19.825 19 19 19ZM4 23q-.825 0-1.412-.587Q2 21.825 2 21V8q0-.425.288-.713Q2.575 7 3 7t.713.287Q4 7.575 4 8v13h10q.425 0 .713.288q.287.287.287.712t-.287.712Q14.425 23 14 23ZM15 8h4l-5-5v4q0 .425.288.713Q14.575 8 15 8Z" />
-										</svg>
-									</button>
-									<button
-										onClick={() => {
-											navigator.clipboard.writeText(window.location.href + "#:~:text=" + rightClickedOn?.selection ?? "");
-										}}
-									>
-										<svg width="1em" height="1em" viewBox="0 0 24 24">
-											<path d="M13.753 2c1.158 0 2.11.875 2.234 2h1.763a2.25 2.25 0 0 1 2.245 2.096L20 6.25v6a.75.75 0 0 1-1.493.102l-.007-.102v-6a.75.75 0 0 0-.648-.743L17.75 5.5h-2.132c-.403.6-1.088.993-1.865.993h-3.506A2.244 2.244 0 0 1 8.382 5.5H6.25a.75.75 0 0 0-.743.648L5.5 6.25v13.505c0 .38.282.693.648.743l.204.013a.75.75 0 0 1-.102 1.494a2.25 2.25 0 0 1-2.245-2.096L4 19.755V6.25a2.25 2.25 0 0 1 2.096-2.245L6.25 4h1.763a2.247 2.247 0 0 1 2.234-2h3.506zm3.497 12.5h1a3.75 3.75 0 0 1 .202 7.495l-.199.005l-1 .005a.75.75 0 0 1-.108-1.493l.102-.007l1.003-.005a2.25 2.25 0 0 0 .154-4.495L18.25 16h-1a.75.75 0 0 1-.102-1.493l.102-.007h1h-1zm-5 0h1a.75.75 0 0 1 .102 1.493L13.25 16h-1a2.25 2.25 0 0 0-.154 4.495l.154.005h1a.75.75 0 0 1 .102 1.493L13.25 22h-1a3.75 3.75 0 0 1-.2-7.495l.2-.005h1h-1zm0 3h6a.75.75 0 0 1 .102 1.493L18.25 19h-6a.75.75 0 0 1-.102-1.493l.102-.007h6h-6zm1.503-14h-3.506a.747.747 0 0 0 0 1.493h3.506a.747.747 0 1 0 0-1.493z" fill="currentColor" fillRule="nonzero" />
-										</svg>
-									</button>
-								</div>
-
-
-							)}
-						</motion.div>
-					)}
 					{menu && (
 						<>
 							<motion.div
 								initial={{ scale: 0, rotate: -180 }}
 								animate={{ scale: 1, rotate: 0 }}
-								style={{ position: "absolute", userSelect: "none" , width: "100%", height: "100%" }}
+								style={{ position: "absolute", userSelect: "none", width: "100%", height: "100%" }}
 							>
 								<div ref={menuOptions} className='circle'>
 
