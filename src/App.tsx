@@ -1,15 +1,32 @@
 import { AnimateSharedLayout, motion } from 'framer-motion';
 import React, { useState } from 'react';
 import Content from './content';
-import { DynamicCursorProvider } from './Context';
+import { DynamicCursorProvider, useDynamicHover } from './Context';
 
 function App() {
 
+  const { hover, props } = useDynamicHover()
+
   return (
     <>
-      <p>
-        Lorem ipsum dolor sit, amet consectetur adipisicing elit. Dicta accusantium laudantium ad corrupti, perspiciatis maiores tempora sunt dolores ipsam necessitatibus nam itaque atque reprehenderit, eaque cumque, praesentium magnam eum ullam.
-      </p>
+      <a
+        className="interact"
+        style={{ color: hover ? "white" : "white", position: "relative", isolation: "isolate" }}
+        {...props}
+      >
+        Lorem ipsum dolor sit
+        {hover && (
+          <motion.div layout layoutId="cursor" style={{
+            position: "absolute",
+            bottom: 0,
+            left: -1,
+            width: "100%",
+            height: "1px",
+            background: "white",
+            zIndex: -1,
+          }} />
+        )}
+      </a>
     </>
   )
 

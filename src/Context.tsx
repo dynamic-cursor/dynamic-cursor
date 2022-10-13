@@ -90,11 +90,13 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 
 		if (menu) {
 			document.body.style.overflow = "hidden";
+			document.body.style.pointerEvents = "none";
 			document.body.style.userSelect = "none";
 		}
 		if (!menu) {
 			setCurrentSelected(null);
 			document.body.style.overflow = "auto";
+			document.body.style.pointerEvents = "all";
 			document.body.style.userSelect = "text";
 		}
 
@@ -285,6 +287,27 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 	)
 }
 
-export const useDyanmicCursor = () => React.useContext(DynamicCursor);
+export const useDynamicHover = () => {
+	
+	const [hover, setHover] = React.useState(false);
+	const { dynamicHover } = useDynamicCursor();
+
+	const onMouseEnter = () => {
+		setHover(true);
+		dynamicHover(true);
+	}
+
+	const onMouseLeave = () => {
+		setHover(false);
+		dynamicHover(false);
+	}
+
+	return {
+		hover, props: { onMouseEnter, onMouseLeave }
+	}
+
+}
+
+export const useDynamicCursor = () => React.useContext(DynamicCursor);
 
 export default DynamicCursor;

@@ -11,9 +11,6 @@ ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
       { icon: <>-</>, onClick: () => window.open("https://youtube.com") },
       { icon: <>/</>, onClick: () => window.open("https://github.com") },
       { icon: <>:</>, onClick: () => window.open("https://facebook.com") },
-      { icon: <>&</>, onClick: () => window.open("https://twitter.com") },
-      { icon: <>#</>, onClick: () => alert("#") },
-      { icon: <>%</>, onClick: () => alert("#") },
     ]}>
       <App />
     </DynamicCursorProvider>
