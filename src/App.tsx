@@ -1,32 +1,32 @@
-import { AnimateSharedLayout, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import React, { useState } from 'react';
-import Content from './content';
-import { DynamicCursorProvider, useDynamicHover } from './Context';
+import { useDynamicHover } from './Context';
 
 function App() {
 
-  const { hover, props } = useDynamicHover()
+  const { hover, props } = useDynamicHover();
 
   return (
     <>
-      <a
-        className="interact"
-        style={{ color: hover ? "white" : "white", position: "relative", isolation: "isolate" }}
+      <div
+        className="tooltip"
         {...props}
       >
-        Lorem ipsum dolor sit
+        Hover please!
         {hover && (
-          <motion.div layout layoutId="cursor" style={{
-            position: "absolute",
-            bottom: 0,
-            left: -1,
-            width: "100%",
-            height: "1px",
-            background: "white",
-            zIndex: -1,
-          }} />
+          <div className='tip'>
+            <motion.div
+              layout layoutId='cursor'
+              style={{
+                borderRadius: "5px"
+              }}
+              transition={{ duration: 0.1 }}
+            >
+              Test
+            </motion.div>
+          </div>
         )}
-      </a>
+      </div>    
     </>
   )
 

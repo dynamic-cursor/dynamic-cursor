@@ -178,10 +178,9 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 		function onMouseDown() {
 
 			if (_menuRef.current === true && _cs.current !== null) {
-				console.log(_cs.current, menuOpts[_cs.current - 1])
-				menuOpts[_cs.current - 1]?.onClick();
 				menuOff.current = true;
 				setMenu(false);
+				menuOpts[_cs.current - 1]?.onClick();
 			}
 		}
 
@@ -218,6 +217,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 					style={{
 						width: !(hoveringOn || menu) ? "20px" : "50px",
 						height: !(hoveringOn || menu) ? "20px" : "50px",
+						borderRadius: "50%",
 					}}
 					className="dynamic-cursor"
 				>
