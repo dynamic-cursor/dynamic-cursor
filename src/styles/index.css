@@ -75,3 +75,17 @@ body {
   background-color: rgb(256, 256, 256, 0.3);
 
 }
+
+.dynamic-modal {
+  width: 70%;
+  height: 80%;
+  border-radius: 10px;
+  background-color: white;
+}
+
+@media screen and (max-width: 768px) {
+  .dynamic-modal {
+    width: 90%;
+    height: 70%;
+  }
+}
