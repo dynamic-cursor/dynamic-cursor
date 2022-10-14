@@ -30,7 +30,7 @@ export const Underline = ({ tag, children, transition, underlineColor, ...proper
                     {children}
                     {hover && (
                         <motion.div 
-                            layout layoutId="cursor" transition={transition}
+                            layout layoutId="dynamic-cursor" transition={transition}
                             style={{ 
                                 position: "absolute",
                                 bottom: 0,
@@ -81,7 +81,7 @@ export const Box = ({ tag, children, transition, color, bgColor, ...properties }
                     {children}
                     {hover && (
                         <motion.div
-                            layout layoutId="cursor" transition={transition}
+                            layout layoutId="dynamic-cursor" transition={transition}
                             style={{ 
                                 position: "absolute",
                                 bottom: 0,

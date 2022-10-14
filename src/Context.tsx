@@ -23,54 +23,6 @@ interface Props {
 	}>;
 }
 
-const contextmenu: {
-	[key: string]: {
-		[key: string]: (prop: string) => void;
-	}
-} = {
-	"A": {
-		"Open link in new tab": (link: string) => {
-			window.open(link, "_blank");
-		},
-		"Copy link address": (link: string) => {
-			navigator.clipboard.writeText(link);
-		},
-	},
-	"IMG": {
-		"Open image in new tab": (link: string) => {
-			window.open(link, "_blank");
-		},
-		"Copy image address": (link: string) => {
-			navigator.clipboard.writeText(link);
-		},
-		"Copy Image": async (link: string) => {
-			const resp = await fetch(link);
-			const blob = await resp.blob();
-
-			navigator.clipboard.write([new ClipboardItem({ "image/png": blob })])
-		},
-		"Save Image": async (link: string) => {
-			const a = document.createElement("a");
-			const resp = await fetch(link);
-			const blob = await resp.blob();
-
-			document.body.appendChild(a); // for Firefox
-
-			const reader = new FileReader();
-			let base64: string | ArrayBuffer | null = "";
-			reader.readAsDataURL(blob);
-			reader.onloadend = function () {
-				base64 = reader.result;
-			}
-
-			a.setAttribute("href", base64);
-			a.setAttribute("download", "image.png");
-			a.click();
-		}
-	},
-
-}
-
 export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: Props) => {
 
 	const cr = React.useRef<HTMLDivElement>(null);
@@ -205,6 +157,81 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 			dynamicHovering: hovering,
 			dynamicHover: setHovering
 		}}>
+			<style>{`
+                .dynamic-cursor {
+                    border-radius: 50%;
+                    position: fixed;
+                    z-index: 10000;
+                    background: white;
+                    pointer-events: none;
+                    top: 0;
+                    left: 0;
+                    transition: all 0.2s ease-in-out;
+                  }
+                  
+                  .dynamic-menu-overlay {
+                    height: 100vh;
+                    width: 100vw;
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    zIndex: 1000;
+                    background: rgba(0, 0, 0, 0.5);
+                  }
+                  
+                  .dynamic-cursor-menu {
+                    position: absolute;
+                    width: 400%;
+                    height: 400%;
+                    top: 50%;
+                    left: 50%;
+                  
+                    z-index: -1;
+                    border-radius: 50%;
+                  
+                    transform: translate(-50%, -50%);
+                  }
+                  
+                  .dynamic-cursor-menu-ring > div {
+                    position: absolute;
+                    top: 0;
+                    left: 50%;
+                  
+                    width: 40px;
+                    height: 40px;
+                    border-radius: 50%;
+                    background-color: rgb(256, 256, 256, 0.1);
+                    transform: translateX(-50%);
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    
+                    transition: scale, background-color 200ms ease-in-out;
+                  }
+                  
+                  .dynamic-cursor-menu-ring:after {
+                    content: "";
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    width: 50%;
+                    height: 50%;
+                    
+                    transform: translate(-50%, -50%);
+                    border: dashed 1px rgb(256, 256, 256, 0.05);
+                  }
+                  
+                  .dynamic-cursor-menu-ring {
+                    position: relative;
+                  }
+                  
+                  .dynamic-cursor-menu-ring > div.selected {
+                  
+                    scale: 1.2;
+                    background-color: rgb(256, 256, 256, 0.3);
+                  
+                  }
+            `}</style>
 			{(menu) && (
 				<div className="dynamic-menu-overlay" />
 			)}
