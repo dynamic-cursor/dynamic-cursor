@@ -1,5 +1,5 @@
 import { motion, MotionConfigProps, MotionProps, MotionTransform } from "framer-motion";
-import React, { Children } from "react";
+import React, { Children, useRef } from "react";
 import { useDynamicHover } from "./Context"
 
 export const Underline = ({ tag, children, transition, underlineColor, ...properties }: {
@@ -60,7 +60,7 @@ export const Box = ({ tag, children, transition, color, bgColor, ...properties }
 }) => {
 
     const { hover, props } = useDynamicHover();
-    
+
     if (properties.style?.position === undefined || properties.style?.position === "static") {
         properties.style = {
             ...properties.style,
@@ -80,7 +80,7 @@ export const Box = ({ tag, children, transition, color, bgColor, ...properties }
                 <>
                     {children}
                     {hover && (
-                        <motion.div 
+                        <motion.div
                             layout layoutId="cursor" transition={transition}
                             style={{ 
                                 position: "absolute",
