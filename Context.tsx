@@ -166,7 +166,8 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
                     pointer-events: none;
                     top: 0;
                     left: 0;
-                    transition: all 0.2s ease-in-out;
+  					mix-blend-mode: exclusion;
+					transition: all 0.2s ease-in-out;
                   }
                   
                   .dynamic-menu-overlay {
