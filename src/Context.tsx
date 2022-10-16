@@ -246,7 +246,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 
 			{(!hovering || menu) && (
 				<motion.div
-					id="cursor"
+					id="dynamic-cursor"
 					ref={cr}
 					layout layoutId='dynamic-cursor'
 					style={{
