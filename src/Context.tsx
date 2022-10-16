@@ -232,6 +232,13 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
                     background-color: rgb(256, 256, 256, 0.3);
                   
                   }
+
+				  @media only screen and (max-width: 600px) {
+					.dynamic-cursor {
+						display: hidden;
+					}
+				  }
+
             `}</style>
 			{(menu) && (
 				<div className="dynamic-menu-overlay" />
@@ -241,7 +248,7 @@ export const DynamicCursorProvider = ({ children, menuOptions: menuOpts = [] }: 
 				<motion.div
 					id="cursor"
 					ref={cr}
-					layout layoutId='cursor'
+					layout layoutId='dynamic-cursor'
 					style={{
 						width: !(hoveringOn || menu) ? "20px" : "50px",
 						height: !(hoveringOn || menu) ? "20px" : "50px",
