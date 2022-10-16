@@ -1,6 +1,6 @@
 import { motion, MotionConfigProps } from "framer-motion";
 import React from "react";
-import { useDynamicHover } from "./Context"
+import { useDynamicHover } from "./Context";
 
 export const Underline = ({ tag, children, transition, underlineColor, ...properties }: {
     tag: string;
